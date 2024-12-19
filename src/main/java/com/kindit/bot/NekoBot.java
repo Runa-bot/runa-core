@@ -46,7 +46,7 @@ public class NekoBot {
         new Thread(() -> {
             while (true) {
                 long uptime = ManagementFactory.getRuntimeMXBean().getUptime();
-                shardManager.setActivity(Activity.watching(convertMillisecondToTime(uptime)));
+                shardManager.setActivity(Activity.watching(convertMillisecondToReadableTime(uptime)));
                 try {
                     Thread.sleep(5500);
                 } catch (InterruptedException e) { throw new RuntimeException(e); }
@@ -54,7 +54,8 @@ public class NekoBot {
         }).start();
     }
 
-    private static String convertMillisecondToTime(long millisecond) {
+    private static String convertMillisecondToReadableTime(long millisecond) {
+
         long days = TimeUnit.MILLISECONDS.toDays(millisecond);
         millisecond -= TimeUnit.DAYS.toMillis(days);
 
@@ -66,8 +67,24 @@ public class NekoBot {
 
         long seconds = TimeUnit.MILLISECONDS.toSeconds(millisecond);
 
-        return String.format("%02d:%02d:%02d:%02d", days, hours, minutes, seconds);
+        StringBuilder result = new StringBuilder();
+
+        if (days > 0) {
+            result.append(days).append(" day").append(days > 1 ? "s" : "").append(" ");
+        }
+        if (hours > 0) {
+            result.append(hours).append(" hour").append(hours > 1 ? "s" : "").append(" ");
+        }
+        if (minutes > 0) {
+            result.append(minutes).append(" minute").append(minutes > 1 ? "s" : "").append(" ");
+        }
+        if (result.isEmpty()) {
+            result.append(0).append(" minute").append(minutes > 1 ? "s" : "").append(" ");
+        }
+
+        return result.toString().trim();
     }
+
 
     private void setStream(ShardManager shardManager) {
         new Thread(() -> {
